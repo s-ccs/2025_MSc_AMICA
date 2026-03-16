@@ -24,3 +24,5 @@ docs/site/
 *.asv
 *.m~
 
+
+.DS_Store
