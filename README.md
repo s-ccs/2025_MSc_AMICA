@@ -1,64 +1,33 @@
-# **MSc-Thesis:** On the simulation of GIT-Templates for BSc-Theses
-**Author:** *Benedikt Ehinger*
+# **MSc-Thesis:** Toward Fortran Level AMICA in Julia: Block Based Learning and GPU Acceleration
 
-**Supervisor(s):** *Supervisor 1*, *Supervisor 2*
+**Author:** _Valentin Morlock_
 
-**Year:** *2022*
+**Supervisor:** _Benedikt V. Ehinger_
+
+**Year:** _2026_
 
 ## Project Description
->provide a short description of the main goals - just copy from the proposal
 
-## Zotero Library Path
->Please provide the link to the Zotero group here or include a `Bib`-File in the `report` folder
+Adaptive Mixture of Independent Component Analyzers (AMICA) is a powerful maximum-likelihood based method for Independent Component Analysis (ICA) and is widely used in EEG artifact removal. AMICA.jl is a promising re-implementation of the Fortran reference in the Julia programming language that improves the accessibility of the algorithm's implementation but cannot yet match the convergence behavior, performance, and numerical stability of the reference.
+
+Our work examines whether AMICA.jl can be improved to match the Fortran reference in correctness and performance while still offering a more accessible and extensible code base. By exporting intermediate values from a modified Fortran implementation and comparing them against Julia, multiple implementation differences were identified and corrected, resulting in closely matching outputs. Numerical stability was improved, allowing AMICA.jl to reliably work with 32-bit precision. To improve performance and potentially outperform AMICA Fortran, we added GPU acceleration, introduced blockwise processing, and implemented multithreading in AMICA.jl.
+
+We performed an extensive benchmark series measuring memory use and runtime, and showed that our improved Julia implementation substantially improved both metrics. When compared to the Fortran reference, AMICA.jl is now competitive in terms of memory use and CPU runtime, and achieves faster runtimes when using GPU acceleration.
+
+Our work therefore positions AMICA.jl as a correct, practically viable and more accessible alternative to the Fortran reference implementation.
 
 ## Instruction for a new student
->If a fellow student wants to reproduce all your results. What scripts, in which order, with which data need to be run?
->
->Be as specific as possible. Plan to spend **at least 1h** on this.
->
->Optional: Add a pipeline plot in which the different steps are displayed together with the corresponding scripts.
 
-## Overview of Folder Structure 
+The main artifact of this work can be found in the [AMICA.jl repo](https://github.com/s-ccs/Amica.jl). The final commit during this project was [177aa2cd5510d8e5c86e1b080cc18f88a401c10a](https://github.com/s-ccs/Amica.jl/commit/177aa2cd5510d8e5c86e1b080cc18f88a401c10a). To reproduce the benchmarks of this work, run the `benchmark.jl` script, this will run all benchmarks as defined in `testsuite.jl` and write the outputs to `benchmarks.json`. The plotting scripts `runtime_plots.jl` and `memory_plots.jl` consume this file and create a set of plots used within the thesis.
 
-```
-│projectdir          <- Project's main folder. It is initialized as a Git
-│                       repository with a reasonable .gitignore file.
-│
-├── report           <- **Immutable and add-only!**
-│   ├── proposal     <- Proposal PDF
-│   ├── thesis       <- Final Thesis PDF
-│   ├── talks        <- PDFs (and optionally pptx etc) of the Intro,
-|   |                   Midterm & Final-Talk
-|
-├── _research        <- WIP scripts, code, notes, comments,
-│   |                   to-dos and anything in an alpha state.
-│
-├── plots            <- All exported plots go here, best in date folders.
-|   |                   Note that to ensure reproducibility it is required that all plots can be
-|   |                   recreated using the plotting scripts in the scripts folder.
-|
-├── notebooks        <- Pluto, Jupyter, Weave or any other mixed media notebooks.*
-│
-├── scripts          <- Various scripts, e.g. simulations, plotting, analysis,
-│   │                   The scripts use the `src` folder for their base code.
-│
-├── src              <- Source code for use in this project. Contains functions,
-│                       structures and modules that are used throughout
-│                       the project and in multiple scripts.
-│
-├── test             <- Folder containing tests for `src`.
-│   └── runtests.jl  <- Main test file
-│   └── setup.jl     <- Setup test environment
-│
-├── README.md        <- Top-level README. A fellow student needs to be able to
-|   |                   continue your project. Think about her!!
-|
-├── .gitignore       <- focused on Julia, but some Matlab things as well
-│
-├── (Manifest.toml)  <- Contains full list of exact package versions used currently.
-|── (Project.toml)   <- Main project file, allows activation and installation.
-└── (Requirements.txt)<- in case of python project - can also be an anaconda file, MakeFile etc.
-                        
-```
+To run the benchmarks, certain system dependencies have to be available, and paths need to be adjusted:
 
-\*Instead of having a separate *notebooks* folder, you can also delete it and integrate your notebooks in the scripts folder. However, notebooks should always be marked by adding `nb_` in front of the file name.
+- Download and install the [MPICH](https://www.mpich.org/static/downloads/5.0.0/mpich-5.0.0-installguide.pdf) library
+- Download and install [Intel MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html) to compile and run the Fortran implementation
+- A checkout of the [AMICA repository](https://github.com/sccn/amica). Add the `scripts/Makefile` to the checkout.
+- Adjust paths: the location of Intel MKL and MPI are hardcoded within the `Makefile` and `scripts/fortran_runner.jl`, adjust those to match your installation
+- Build AMICA Fortran: run `make` in the checked-out directory
+- Adjust the AMICA path in `fortran_runner`'s `DEFAULT_AMICA_BIN` variable
+- Acquire datasets: download the `Memorize` dataset from the [AMICA Website](https://sccn.ucsd.edu/~jason/amica_web.html). The small dataset is checked in to the AMICA.jl repository, but you will have to acquire the large dataset and convert it using `convert.jl`. Adjust paths in `default.param`,`fortran_runner.jl` and `julia_runner.jl`.
+
+You should now be able to run the benchmark: remove or rename the current `benchmarks.json` and run `benchmark.jl`. As this can take multiple days, it's best to run it within a `tmux` session. Afterwards you might want to run the plotting scripts `memory_plots.jl` or `runtime_plots.jl`.
