@@ -13,3 +13,5 @@
 `ll_compare_memorize_big.jl` runs all AMICA implementations for 40 iterations, stores the results in `ll_compare_memorize_big_backup.json` and creates a plot of the results
 
 `memory_plots.jl` & `runtime_plots.jl` all other plots used in the thesis and presentation, reads data from benchmarks.json
+
+`Makefile` a makefile to build AMICA Fortran
